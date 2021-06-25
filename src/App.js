@@ -1,6 +1,14 @@
 import { useCallback, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Button, Container, Form, InputGroup, Toast } from 'react-bootstrap';
+import {
+    Button,
+    Col,
+    Container,
+    Form,
+    InputGroup,
+    Spinner,
+    Toast,
+} from 'react-bootstrap';
 import axios from 'axios';
 
 const baseState = {
@@ -14,9 +22,10 @@ const superFetch = async (...options) => {
 };
 
 function App() {
-    const [state, setState] = useState(baseState);
+    const [state, setState] = useState({ ...baseState });
     const [show, setShow] = useState(false);
     const [status, setStatus] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const changeValue = (e) =>
         setState((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -24,6 +33,8 @@ function App() {
     const submit = useCallback(
         async (e) => {
             e.preventDefault();
+
+            setLoading(true);
 
             try {
                 const img = new FormData();
@@ -51,12 +62,25 @@ function App() {
             }
 
             setShow(true);
+            setLoading(false);
         },
         [state]
     );
 
     return (
         <Container className="pt-5">
+            <style>
+                {`input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}`}
+            </style>
             <Form onSubmit={submit}>
                 <Form.Group>
                     <Form.Label>Nombre</Form.Label>
@@ -68,22 +92,6 @@ function App() {
                 </Form.Group>
 
                 <Form.Group>
-                    <Form.Label>Precio en miles</Form.Label>
-
-                    <InputGroup>
-                        <Form.Control
-                            onChange={changeValue}
-                            name="precio"
-                            type="number"
-                            className="text-right"
-                            inputmode="decimal"
-                            pattern="[0-9]*"
-                        ></Form.Control>
-                        <InputGroup.Text>000</InputGroup.Text>
-                    </InputGroup>
-                </Form.Group>
-
-                <Form.Group>
                     <Form.Label>Notas</Form.Label>
                     <Form.Control
                         onChange={changeValue}
@@ -92,31 +100,67 @@ function App() {
                     ></Form.Control>
                 </Form.Group>
 
-                <Form.Group>
-                    <Form.Label>Foto</Form.Label>
-                    <Form.Control
-                        onChange={(e) =>
-                            setState((prev) => ({
-                                ...prev,
-                                foto: e.target.files[0],
-                            }))
-                        }
-                        name="foto"
-                        type="file"
-                        accept="image/*"
-                        capture="camera"
-                    />
-                </Form.Group>
+                <Form.Row>
+                    <Col>
+                        <Form.Group>
+                            <Form.Label>Precio en miles</Form.Label>
+
+                            <InputGroup>
+                                <Form.Control
+                                    onChange={changeValue}
+                                    name="precio"
+                                    type="number"
+                                    className="text-right"
+                                    inputmode="decimal"
+                                    pattern="[0-9]*"
+                                ></Form.Control>
+                                <InputGroup.Text>000</InputGroup.Text>
+                            </InputGroup>
+                        </Form.Group>
+                    </Col>
+                    <Col>
+                        <Form.Group>
+                            <Form.Label>Foto</Form.Label>
+                            <Form.Control
+                                onChange={(e) =>
+                                    setState((prev) => ({
+                                        ...prev,
+                                        foto: e.target.files[0],
+                                    }))
+                                }
+                                name="foto"
+                                type="file"
+                                accept="image/*"
+                                capture="camera"
+                            />
+                        </Form.Group>
+                    </Col>
+                </Form.Row>
 
                 <Button
                     variant="primary"
                     type="submit"
-                    disabled={!state.nombre || !state.foto || !state.precio}
+                    disabled={
+                        !state.nombre || !state.foto || !state.precio || loading
+                    }
                 >
-                    Subir
+                    {loading ? (
+                        <>
+                            <Spinner
+                                as="span"
+                                animation="grow"
+                                size="sm"
+                                role="status"
+                                aria-hidden="true"
+                            />{' '}
+                            Loading...
+                        </>
+                    ) : (
+                        'Subir'
+                    )}
                 </Button>
             </Form>
-
+            <br />
             <Toast
                 onClose={() => setShow(false)}
                 show={show}
