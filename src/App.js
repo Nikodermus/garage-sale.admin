@@ -11,14 +11,17 @@ import {
 } from 'react-bootstrap';
 import axios from 'axios';
 
-const baseState = {
-    precio: 0,
-};
-
 const superFetch = async (...options) => {
     const res = await fetch(...options);
     const data = await res.json();
     return data;
+};
+
+const baseState = {
+    nombre: '',
+    precio: '',
+    foto: '',
+    notas: '',
 };
 
 function App() {
@@ -56,8 +59,7 @@ function App() {
                 });
 
                 setStatus('success');
-                setState({});
-                e.currentTarget.reset();
+                setState({ ...baseState });
             } catch (error) {
                 setStatus('danger');
             }
@@ -82,13 +84,15 @@ input[type=number] {
   -moz-appearance: textfield;
 }`}
             </style>
-            <Form onSubmit={submit}>
+            <Form onSubmit={submit} autoComplete="off">
                 <Form.Group>
                     <Form.Label>Nombre</Form.Label>
                     <Form.Control
                         onChange={changeValue}
                         name="nombre"
+                        autoComplete="false"
                         type="text"
+                        value={state.nombre}
                     ></Form.Control>
                 </Form.Group>
 
@@ -97,7 +101,9 @@ input[type=number] {
                     <Form.Control
                         onChange={changeValue}
                         name="notas"
+                        autoComplete="false"
                         type="text"
+                        value={state.notas}
                     ></Form.Control>
                 </Form.Group>
 
@@ -110,10 +116,12 @@ input[type=number] {
                                 <Form.Control
                                     onChange={changeValue}
                                     name="precio"
+                                    autoComplete="false"
                                     type="number"
                                     className="text-right"
-                                    inputmode="decimal"
+                                    inputMode="decimal"
                                     pattern="[0-9]*"
+                                    value={state.precio}
                                 ></Form.Control>
                                 <InputGroup.Text>000</InputGroup.Text>
                             </InputGroup>
@@ -130,6 +138,7 @@ input[type=number] {
                                     }))
                                 }
                                 name="foto"
+                                autoComplete="false"
                                 type="file"
                                 accept="image/*"
                                 capture="camera"
@@ -140,6 +149,7 @@ input[type=number] {
 
                 <Button
                     variant="primary"
+                    autoComplete="false"
                     type="submit"
                     disabled={
                         !state.nombre || !state.foto || !state.precio || loading
