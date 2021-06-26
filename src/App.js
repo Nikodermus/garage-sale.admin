@@ -6,6 +6,7 @@ import {
     Container,
     Form,
     InputGroup,
+    Modal,
     Spinner,
     Toast,
 } from 'react-bootstrap';
@@ -29,6 +30,9 @@ function App() {
     const [show, setShow] = useState(false);
     const [status, setStatus] = useState('');
     const [loading, setLoading] = useState(false);
+
+    const [isOpen, setOpen] = useState(false);
+    const [building, setBuilding] = useState(false);
 
     const changeValue = (e) =>
         setState((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -151,6 +155,8 @@ input[type=number] {
                     variant="primary"
                     autoComplete="false"
                     type="submit"
+                    size="lg"
+                    block
                     disabled={
                         !state.nombre || !state.foto || !state.precio || loading
                     }
@@ -186,6 +192,63 @@ input[type=number] {
                         : 'Nuevo elemento agregado'}
                 </Toast.Body>
             </Toast>
+            <br />
+            <Button variant="info" onClick={() => setOpen(true)}>
+                Admin
+            </Button>
+
+            <Modal show={isOpen} onHide={() => setOpen(false)} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>Reconstruir el sitio</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    Si necesitas actualizar el sitio, dale construir
+                    <br />
+                </Modal.Body>
+                <Modal.Footer>
+                    {Math.random() + 1 && (
+                        <img
+                            src={`https://api.netlify.com/api/v1/badges/c9f315ae-08e5-4959-8b3d-9365be71649a/deploy-status?r=${Math.random()}`}
+                            alt=""
+                            style={{ marginRight: 'auto' }}
+                        />
+                    )}
+                    <Button variant="secondary" onClick={() => setOpen(false)}>
+                        Cerrar
+                    </Button>
+                    <Button
+                        variant="primary"
+                        disabled={building}
+                        onClick={async () => {
+                            setBuilding(true);
+
+                            try {
+                                await fetch(
+                                    'https://api.netlify.com/build_hooks/60d6a55d004d545051b7c124',
+                                    { method: 'POST' }
+                                );
+                            } catch (error) {}
+
+                            setBuilding(false);
+                        }}
+                    >
+                        {building ? (
+                            <>
+                                <Spinner
+                                    as="span"
+                                    animation="grow"
+                                    size="sm"
+                                    role="status"
+                                    aria-hidden="true"
+                                />{' '}
+                                Comenzando a construir...
+                            </>
+                        ) : (
+                            'Contruir'
+                        )}
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </Container>
     );
 }
