@@ -57,6 +57,7 @@ function App() {
 
                 setStatus('success');
                 setState({});
+                e.currentTarget.reset();
             } catch (error) {
                 setStatus('danger');
             }
